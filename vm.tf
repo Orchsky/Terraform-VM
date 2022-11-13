@@ -7,7 +7,7 @@ resource "azurerm_resource_group" "demo-rg" {
 # This block is like VPC
 resource "azurerm_virtual_network" "demo-vnet" {
   name                = "demo-vnet"
-  address_space       = ["10.0.0.0/16"]
+  address_space       = [var.vnet]
   location            = azurerm_resource_group.demo-rg.location
   resource_group_name = azurerm_resource_group.demo-rg.name
 }
@@ -17,7 +17,7 @@ resource "azurerm_subnet" "demo-subnet" {
   name                 = "demo-subnet"
   resource_group_name  = azurerm_resource_group.demo-rg.name
   virtual_network_name = azurerm_virtual_network.demo-vnet.name
-  address_prefixes     = ["10.0.2.0/24"]
+  address_prefixes     = [var.subnet]
 }
 
 # Need this in order to make vm publicly accessible
@@ -67,6 +67,11 @@ resource "azurerm_network_interface_security_group_association" "demo-associatio
   network_security_group_id = azurerm_network_security_group.demo-nsg.id
 }
 
+resource "tls_private_key" "demo-ssh" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
 # Like EC2 instance
 resource "azurerm_linux_virtual_machine" "demo-vm" {
   name                = "demo-vm"
@@ -81,7 +86,7 @@ resource "azurerm_linux_virtual_machine" "demo-vm" {
 
   admin_ssh_key {
     username   = "adminuser"
-    public_key = file("~/.ssh/id_rsa.pub")
+    public_key = tls_private_key.demo-ssh.public_key_openssh
   }
 
   # Think of this as EBS in EC2 configurations
@@ -96,4 +101,13 @@ resource "azurerm_linux_virtual_machine" "demo-vm" {
     sku       = "16.04-LTS"
     version   = "latest"
   }
+}
+
+output "tls_private_key" {
+  value     = tls_private_key.demo-ssh.private_key_pem
+  sensitive = true
+}
+
+output "public_ip_address" {
+  value = azurerm_linux_virtual_machine.demo-vm.public_ip_address
 }
