@@ -1,0 +1,43 @@
+trigger:
+  - master
+
+pool: demo #must setup your own agent pool for this to work
+
+stages:
+- stage: validation
+  jobs:
+  - job: terraform_validation
+    steps:
+    - task: Bash@3
+      displayName: Terraform Init
+      inputs:
+        targetType: 'inline'
+        script: |
+          terraform init
+    - task: Bash@3
+      displayName: Terraform Format
+      inputs:
+        targetType: 'inline'
+        script: |
+          terraform fmt
+          echo "tf code has been formatted"
+    - task: Bash@3
+      displayName: Terraform Validate
+      inputs:
+        targetType: 'inline'
+        script: |
+          terraform validate
+    - task: Bash@3
+      displayName: Terraform Plan
+      inputs:
+        targetType: 'inline'
+        script: |
+          terraform plan
+    - task: Bash@3
+      condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
+      displayName: Terraform Apply
+      inputs:
+        targetType: 'inline'
+        script: |
+          terraform apply --auto-approve
+    
