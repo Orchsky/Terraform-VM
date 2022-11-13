@@ -27,4 +27,11 @@
 #### CICD Setup
 - check in placeholder yml file to repo
 - setup agent pool + agent 
-- What is an agent / agent pool - agent is a virtual machine that we give the set of instructions that we wish to automate against the new incoming code to master branch. Agent pool is collection of agents. 
+- What is an agent / agent pool - agent is a virtual machine that we give the set of instructions that we wish to automate against the new incoming code to master branch. Agent pool is collection of agents.
+- [YAML Schema](https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema/?view=azure-pipelines)
+
+#### Scenario
+- We have created an azure virtual machine using terraform and we have setup CI/CD in place to automate the validation and deployment of the terraform code against incoming changes to the main branch. We have setup build policies to ensure that the pipeline is the required check in order to merge new code into the master branch. 
+
+##### In progress
+- Plan to setup azure keyvault to store sensitive ssh key for retrieval when it comes to logging into the newly created azure VM 
