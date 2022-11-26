@@ -1,5 +1,23 @@
 data "azurerm_client_config" "current" {}
 
+data "external" "account_info" {
+  program = [
+    "az",
+    "ad",
+    "signed-in-user",
+    "show",
+    "--query",
+    "{object_id:id}",
+    "-o",
+    "json",
+  ]
+}
+
+output "user_object_id" {
+  value = data.external.account_info.result.object_id
+}
+
+
 resource "azurerm_key_vault" "demo-kv" {
   name                        = "orchsky-kv"
   location                    = azurerm_resource_group.demo-rg.location
@@ -11,71 +29,44 @@ resource "azurerm_key_vault" "demo-kv" {
 
   sku_name = "standard"
 
-access_policy {
-    tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = data.azurerm_client_config.current.object_id
-
-    certificate_permissions = [
-      "Backup",
-      "Create",
-      "Delete",
-      "DeleteIssuers",
-      "Get",
-      "GetIssuers",
-      "Import",
-      "List",
-      "ListIssuers",
-      "ManageContacts",
-      "ManageIssuers",
-      "Purge",
-      "Recover",
-      "Restore",
-      "SetIssuers",
-      "Update",
-    ]
-    key_permissions = [
-      "Backup",
-      "Create",
-      "Decrypt",
-      "Delete",
-      "Encrypt",
-      "Get",
-      "Import",
-      "List",
-      "Purge",
-      "Recover",
-      "Restore",
-      "Sign",
-      "UnwrapKey",
-      "Update",
-      "Verify",
-      "WrapKey",
-    ]
-    secret_permissions = [
-      "Backup",
-      "Delete",
-      "Get",
-      "List",
-      "Purge",
-      "Recover",
-      "Restore",
-      "Set",
-    ]
-    storage_permissions = [
-      "Backup",
-      "Delete",
-      "DeleteSAS",
-      "Get",
-      "GetSAS",
-      "List",
-      "ListSAS",
-      "Purge",
-      "Recover",
-      "RegenerateKey",
-      "Restore",
-      "Set",
-      "SetSAS",
-      "Update",
-    ]
+  timeouts {
+    create = "60m"
+    delete = "2h"
+    read   = "1h"
   }
+}
+
+resource "azurerm_key_vault_access_policy" "example" {
+  key_vault_id = azurerm_key_vault.demo-kv.id
+  tenant_id    = data.external.account_info.result.tenant_id
+  object_id    = data.external.account_info.result.object_id
+
+  key_permissions = [
+    "Create",
+    "Decrypt",
+    "Delete",
+    "Encrypt",
+    "Get",
+    "Import",
+    "List",
+    "Purge",
+    "Recover",
+    "Restore",
+    "Sign",
+    "UnwrapKey",
+    "Update",
+    "Verify",
+    "WrapKey",
+  ]
+
+  secret_permissions = [
+    "Backup",
+    "Delete",
+    "Get",
+    "List",
+    "Purge",
+    "Recover",
+    "Restore",
+    "Set",
+  ]
 }
