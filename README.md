@@ -34,4 +34,19 @@
 - We have created an azure virtual machine using terraform and we have setup CI/CD in place to automate the validation and deployment of the terraform code against incoming changes to the main branch. We have setup build policies to ensure that the pipeline is the required check in order to merge new code into the master branch. 
 
 ##### In progress
-- Plan to setup azure keyvault to store sensitive ssh key for retrieval when it comes to logging into the newly created azure VM 
+- Plan to setup azure keyvault to store sensitive ssh key for retrieval when it comes to logging into the newly created azure VM  
+
+### ADO Agent Setup
+- refer to class recording
+- setup VM manually
+- download linux agent tar
+- wget <tar file>
+- tar -xvzf <name of tar>
+- ./config.sh
+- ./run.sh afterwards
+
+### Module Setup
+- way to take multiple lines of code and re use it for other projects
+- check [here for reference module](https://github.com/Orchsky/Terraform-EC2/tree/main/vpcmodule)
+- how to call it [main](https://github.com/Orchsky/Terraform-EC2/blob/main/main.tf)
+- optional to use providers block when using modules
